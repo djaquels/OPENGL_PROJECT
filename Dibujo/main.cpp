@@ -9,12 +9,15 @@
 #include <time.h>
 #include <math.h>
 // TEXTURAS
+int total = 0,s =0;
+int intento = 1;
+float anx = 0.0, any = 1.0, anz = 8.0;
 float rotacion[13] = { 0,0,0,0,0,0,0,0,0,0,0,0,0 };
 float roty[13] = { 0,0,0,0,0,0,0,0,0,0,0,0,0 };
 int puntaje = 0;
 float _angle = 0.0;
-float angulo = 0.0;
-GLuint _textureBrick, _textureDoor, _textureGrass, _textureRoof, _textureWindow, _textureSky;
+float angulo = -2.0;
+GLuint _textureBrick, _textureDoor, _textureGrass, _textureRoof, _textureWindow, _textureSky, _texturePino;
 float bx = 0, by = 0.1, bz = 6;
 /*    Create checkerboard texture    */
 #define    checkImageWidth 64
@@ -24,6 +27,9 @@ GLdouble z1 = 0.0, x1 = 0.0, y2 = 1.0; // rotacion de camera
 #ifdef GL_VERSION_1_1
 static GLuint texName;
 #endif
+float randCoord() {
+	return -10.5 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (13.5)));
+}
 float randAngle() {
 	return -45 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/(90)));
 }
@@ -194,6 +200,8 @@ void init(void)
 	_textureWindow = loadTexture(image);
 	image = loadBMP("wall.bmp");
 	_textureSky = loadTexture(image);
+	image = loadBMP("marmol.bmp");
+	_texturePino = loadTexture(image);
 	delete image;
 }
 // MATERIALES 
@@ -209,18 +217,19 @@ void piso() {
 		glEnd();
 	
 }
-
+float tpinos[13] = { 0,0,0,0,0,0,0,0,0,0,0,0,0 };
 void drawPinos() {
 	int actual = 0;
 	int filas = 5; int columnas = 5;
-	float inicial = -0.35;
+	float inicial = -1.35;
 	
 	for (int i = 0; i < filas; i++) {
 		for (int j = 0; j < columnas; j++) {
 			glPushMatrix();
 			//bx by bz
-			glTranslatef(inicial+(j*0.2), 0.1 , -5 - (i* 0.3) );
+			glTranslatef(inicial+(j*0.35), 0.1 , -5 - (i* 0.3) );
 			glScalef(0.01, 0.01, 0.02);
+			glTranslatef(tpinos[actual], 0, tpinos[actual]);
 			glRotatef(270, 1, 0, 0);
 			glRotatef(roty[actual], 0, 1, 1);
 			glRotatef(rotacion[actual],1,0,0);
@@ -240,7 +249,7 @@ void display(void)
 	glEnable(GL_TEXTURE_2D);
 	glLoadIdentity();             /* clear the matrix */
 	/* viewing transformation  */
-	gluLookAt(0.0, 1.0, 8.0, x1, y2, z1, 0.0, 1.0, 0.0);
+	gluLookAt(anx, any, anz, x1, y2, z1, 0.0, 1.0, 0.0);
 	glScalef(1.0, 2.0, 1.0);      /* modeling transformation */
 	glPushMatrix();
 	glTranslatef(camina_hor, 0, camina_adelante);
@@ -266,15 +275,14 @@ void display(void)
 	glEnd();
 	glPopMatrix();
 	piso();
-	glDisable(GL_TEXTURE_2D);
-	// BOLA
-	//glPushMatrix();
-	//glBindTexture(GL_TEXTURE_2D, _textureWindow);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	//glBegin(GL_QUADS);
-	//glEnd();
-	//glPopMatrix();
+	 //BOLA
+	glPushMatrix();
+	glBindTexture(GL_TEXTURE_2D, _textureWindow);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBegin(GL_QUADS);
+	glEnd();
+	glPopMatrix();
 	glPushMatrix();
 	//bx by bz
 	glTranslatef(bx, by, bz);
@@ -286,11 +294,19 @@ void display(void)
 	/*
 	*/
 	glPushMatrix();
-	glRotatef(180,0,1,0);
-	glTranslatef(0, 0, 10);
+	glBindTexture(GL_TEXTURE_2D, _texturePino);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBegin(GL_QUADS);
+	glEnd();
+	glPopMatrix();
+	glPushMatrix();
+	glRotatef(525,0,1,0);
+	glTranslatef(2.22, 0, 10);
 	drawPinos();
 	glPopMatrix();
 	glPopMatrix();
+	glDisable(GL_TEXTURE_2D);
 	glFlush();
 	glutSwapBuffers();
 }
@@ -326,12 +342,13 @@ void pregame() {
 bool active = true;
 void animacion1() {
 	if (active) {
-		if (bz < -5) {
+		if (bz < -4) {
 			for (int i = 0; i < 13; i++) {
 				rotacion[i] = -90;
 				roty[i] = randAngle();
-				//std::cout << roty[i];
+				tpinos[i] = randCoord();
 				glutPostRedisplay();
+				//std::cout << roty[i];
 			}
 			active = false;
 		}
@@ -339,23 +356,66 @@ void animacion1() {
 	}
 }
 void animacion2() {
-	int pinos = randInt(6, 10);
-	std::cout << "Usted tiro: ";
-	std::cout << pinos;
-	std::cout << "pinos\n";
+	if (active) {
+		if (bz < -4) {
+			int pino1 = randInt(0, 5);
+			int pino2 = randInt(6, 9);
+			int pino3 = randInt(10, 13);
+			//pino1
+			rotacion[pino1] = -90;
+			roty[pino1] = randAngle();
+			tpinos[pino1] = randCoord();
+			glutPostRedisplay();
+			//pino2
+			rotacion[pino2] = -90;
+			roty[pino2] = randAngle();
+			tpinos[pino2] = randCoord();
+			glutPostRedisplay();
+			//pino3
+			rotacion[pino3] = -90;
+			roty[pino3] = randAngle();
+			tpinos[pino3] = randCoord();
+			glutPostRedisplay();
+			if (bx < 0) {
+				rotacion[11] = -90;
+				roty[11] = randAngle();
+				tpinos[11] = randCoord();
+				glutPostRedisplay();
+				// otro pino
+				rotacion[6] = -90;
+				roty[6] = randAngle();
+				tpinos[6] = randCoord();
+				glutPostRedisplay();
+			}
+			else {
+				rotacion[2] = -90;
+				roty[2] = randAngle();
+				tpinos[2] = randCoord();
+				glutPostRedisplay();
+				// otro pino
+				rotacion[8] = -90;
+				roty[8] = randAngle();
+				tpinos[8] = randCoord();
+				glutPostRedisplay();
+
+			}
+			active = false;
+		}
+	}
+
 
 }
 int puntajef() {
 	int p = 0;
 	if (bx > -0.5 && bx < 0.5) {
-		p = 13; // chuza
 		animacion1();
 	}
 	if ((bx > -1.2 && bx <= -0.5) || (bx > 0.5 && bx < 1.2)) {
-		p = 9;
+		animacion2();
 	}
 	else {
-		animacion2();
+		// no se tira ningun bolo
+
 	}
 	//std::cout << p << "\n";
 	return p;
@@ -423,13 +483,51 @@ void keyboard(unsigned char key, int x, int y)
 			glutPostRedisplay();
 			break;
 	case 32:
+		s = 0;
+		if (bx > -0.5 && bx < 0.5) {
+			s = randInt(11, 11);
+			std::cout << "Usted Tiro ";
+			std::cout << s ;
+			std::cout << " Pinos\n";
+		}else if ((bx > -1.2 && bx <= -0.5) || (bx > 0.5 && bx < 1.2)) {
+			s = randInt(2, 6);
+			std::cout << "Usted Tiro ";
+			std::cout << s;
+			std::cout << " Pinos\n";
+			animacion2();
+		}
+		else {
+			std::cout << "Usted No Tiro Ningun Pino\n";
+
+		}
+		total += s;
+		intento++;
 		startg = true;
+		anx = -5;
+		any = 1.5;
+		anz = 0;
+		camina_hor = 5;
+		z1 = -1;
+		//p = randInt(11, 13); // chuza
+		//std::cout << p;
 		break;
 	case 'r':
+		if (intento > 5) {
+			std::cout << "Juego Terminado ";
+			std::cout << total;
+			std::cout << " Puntos ! \n  Comenzando Nuevo Juego\n";
+			intento = 0;
+
+		}
 		startg = false;
 		active = true;
 		bx = 0;
 		bz = 6;
+		camina_hor = 0;
+		z1 = 0;
+		anx = 0;
+		any = 1;
+		anz = 8;
 		for (int i = 0; i < 13; i++) {
 			rotacion[i] = 0;
 			roty[i] = 0;
@@ -438,13 +536,10 @@ void keyboard(unsigned char key, int x, int y)
 		glutPostRedisplay();
 		break;
 	case 'f':
-		for (int i = 0; i < 5; i++) {
-			roty[i] = randAngle();
-		}
-		glutPostRedisplay();
+		animacion1();
 		break;
 	case 'p':
-		angulo += 5;
+		angulo += 0.5;
 		std::cout << angulo << "\n";
 		glutPostRedisplay();
 		break;

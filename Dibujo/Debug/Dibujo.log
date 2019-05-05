@@ -1,4 +1,4 @@
 ﻿  main.cpp
-c:\users\daniel jacales\documents\visual studio 2017\dibujo\dibujo\main.cpp(49): warning C4554: "^": compruebe la prioridad de operador para posibles errores; utilice paréntesis para indicar la prioridad
-c:\users\daniel jacales\documents\visual studio 2017\dibujo\dibujo\main.cpp(137): warning C4018: '<': no coinciden signed/unsigned
+c:\users\daniel jacales\documents\visual studio 2017\dibujo\dibujo\main.cpp(55): warning C4554: "^": compruebe la prioridad de operador para posibles errores; utilice paréntesis para indicar la prioridad
+c:\users\daniel jacales\documents\visual studio 2017\dibujo\dibujo\main.cpp(143): warning C4018: '<': no coinciden signed/unsigned
   Dibujo.vcxproj -> C:\Users\Daniel Jacales\Documents\Visual Studio 2017\Dibujo\Debug\Dibujo.exe
