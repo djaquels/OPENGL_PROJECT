@@ -1,3 +1,6 @@
+// Alumno : Jacales Rojas Hector Daniel
+// No. Cta : 312240761
+// Laboratorio De Computación Grafica
 #include "Main.h"
 #include <iostream>
 #include <fstream>
